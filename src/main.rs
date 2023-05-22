@@ -4,9 +4,8 @@ use i3_ipc::{
     event::{Event, Subscribe},
     I3Stream,
 };
-use std::{error::Error, io};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn rpc() -> Result<(), Box<dyn std::error::Error>> {
     let mut i3 = I3Stream::conn_sub(&[Subscribe::Window, Subscribe::Workspace])?;
 
     let mut client = DiscordIpcClient::new("1109944637281550457")?;
@@ -44,7 +43,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         "View stalk(-app?) repository",
                         "https://github.com/maytees/i3-distalker",
                     )]);
-                client.set_activity(payload)?;
+
+                match client.set_activity(payload) {
+                    Ok(_) => {}
+                    Err(_) => rpc()?,
+                }
             }
             _ => {}
         }
@@ -52,4 +55,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     client.close()?;
     Ok(())
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    rpc()
 }
